@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - NextGate Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a2332, #0f1419);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .signup-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #1a2332;
+        }
+
+        .logo p {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a2332;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .password-requirements {
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .password-requirements h4 {
+            color: #1a2332;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            color: #6b7280;
+        }
+
+        .requirement.met {
+            color: #10b981;
+        }
+
+        .requirement .icon {
+            font-size: 1rem;
+        }
+
+        .btn-signup {
+            width: 100%;
+            padding: 1rem;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-signup:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+        }
+
+        .btn-signup:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+            padding: 0.75rem;
+            background: #fee2e2;
+            border-radius: 0.5rem;
+        }
+
+        .message.success {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .login-link a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .trial-info {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #dbeafe;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #1e40af;
+        }
+
+        .trial-info strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="signup-container">
+        <div class="logo">
+            <h1>NextGate</h1>
+            <p>Create Your Account</p>
+        </div>
+
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="John Smith" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="you@company.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="company">Company Name (Optional)</label>
+                <input type="text" id="company" name="company" placeholder="Your Company Inc.">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+
+                <div class="password-requirements">
+                    <h4>Password Requirements:</h4>
+                    <div class="requirement" id="req-length">
+                        <span class="icon">○</span>
+                        <span>At least 12 characters</span>
+                    </div>
+                    <div class="requirement" id="req-uppercase">
+                        <span class="icon">○</span>
+                        <span>One uppercase letter</span>
+                    </div>
+                    <div class="requirement" id="req-lowercase">
+                        <span class="icon">○</span>
+                        <span>One lowercase letter</span>
+                    </div>
+                    <div class="requirement" id="req-number">
+                        <span class="icon">○</span>
+                        <span>One number</span>
+                    </div>
+                    <div class="requirement" id="req-special">
+                        <span class="icon">○</span>
+                        <span>One special character (!@#$%^&*)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password"
+                    required>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <button type="submit" class="btn-signup" id="submitBtn">Create Account</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="/frontend/login.html">Login</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Password validation
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+        passwordInput.addEventListener('input', function () {
+            const password = this.value;
+
+            // Check length
+            updateRequirement('req-length', password.length >= 12);
+
+            // Check uppercase
+            updateRequirement('req-uppercase', /[A-Z]/.test(password));
+
+            // Check lowercase
+            updateRequirement('req-lowercase', /[a-z]/.test(password));
+
+            // Check number
+            updateRequirement('req-number', /[0-9]/.test(password));
+
+            // Check special character
+            updateRequirement('req-special', /[!@#$%^&*(),.?":{}|<>]/.test(password));
+        });
+
+        function updateRequirement(id, met) {
+            const element = document.getElementById(id);
+            if (met) {
+                element.classList.add('met');
+                element.querySelector('.icon').textContent = '✓';
+            } else {
+                element.classList.remove('met');
+                element.querySelector('.icon').textContent = '○';
+            }
+        }
+
+        // Form submission
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const company = document.getElementById('company').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const message = document.getElementById('message');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Clear previous messages
+            message.classList.remove('show', 'success');
+
+            // Check password match
+            if (password !== confirmPassword) {
+                message.textContent = 'Passwords do not match';
+                message.classList.add('show');
+                return;
+            }
+
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        name,
+                        company_name: company || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    message.textContent = `✓ Account created successfully! Redirecting to subscription...`;
+                    message.classList.add('show', 'success');
+
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/frontend/pricing.html';
+                    }, 2000);
+                } else {
+                    message.textContent = data.error || 'Sign up failed';
+                    if (data.details && data.details.length > 0) {
+                        message.textContent += ': ' + data.details.join(', ');
+                    }
+                    message.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                message.textContent = 'Network error. Please try again.';
+                message.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+
+</html>

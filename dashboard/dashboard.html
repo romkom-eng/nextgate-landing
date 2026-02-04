@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGate Dashboard - Real-Time Sales Dashboard</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">NextGate</h1>
+            <p class="logo-subtitle">Dashboard</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#overview" class="nav-item active">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Overview</span>
+            </a>
+            <a href="#orders" class="nav-item">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Orders</span>
+            </a>
+            <a href="#inventory" class="nav-item">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Inventory</span>
+            </a>
+            <a href="/frontend/mfa-setup.html" class="nav-item">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Security</span>
+            </a>
+            <!-- Admin Link (Hidden by default) -->
+            <a href="/frontend/admin.html" class="nav-item" id="adminLink" style="display: none;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Admin Panel</span>
+            </a>
+            <a href="#shipping" class="nav-item">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Shipping</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" id="btnLogout">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div>
+                <h2 class="page-title">Real-Time Sales Dashboard</h2>
+                <p class="page-subtitle">Amazon FBA Data Analytics</p>
+            </div>
+            <div class="header-actions">
+                <span class="live-indicator">
+                    <span class="pulse"></span>
+                    Live
+                </span>
+                <span class="last-updated" id="lastUpdated">Just updated</span>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">Total Revenue</span>
+                    <div class="kpi-icon revenue">$</div>
+                </div>
+                <div class="kpi-value" id="totalRevenue">$0.00</div>
+                <div class="kpi-change positive">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span>+12.5% vs last month</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">Net Profit</span>
+                    <div class="kpi-icon profit">💰</div>
+                </div>
+                <div class="kpi-value" id="netProfit">$0.00</div>
+                <div class="kpi-subtext">
+                    Margin: <span id="profitMargin">0%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">Total Orders</span>
+                    <div class="kpi-icon orders">📦</div>
+                </div>
+                <div class="kpi-value" id="totalOrders">0</div>
+                <div class="kpi-subtext">
+                    Avg Order Value: <span id="avgOrderValue">$0</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">Inventory Alerts</span>
+                    <div class="kpi-icon inventory">📊</div>
+                </div>
+                <div class="kpi-value" id="lowStockItems">0</div>
+                <div class="kpi-subtext">Low Stock Items</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Revenue Trend (Last 30 Days)</h3>
+                    <div class="chart-legend">
+                        <span class="legend-item">
+                            <span class="legend-color" style="background: #ff6b35;"></span>
+                            Revenue
+                        </span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Cost Analysis</h3>
+                    <div class="chart-legend">
+                        <span class="legend-item">
+                            <span class="legend-color" style="background: #1a2332;"></span>
+                            Amazon Fees
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-color" style="background: #3d4857;"></span>
+                            Shipping
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-color" style="background: #ff6b35;"></span>
+                            Marketing
+                        </span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="costsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="tables-grid">
+            <!-- Recent Orders -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>Recent Orders</h3>
+                    <button class="btn-view-all">View All →</button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order Number</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Inventory Status -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>Inventory Status</h3>
+                    <button class="btn-view-all">View All →</button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable">
+                            <tr>
+                                <td colspan="4" class="text-center">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Tracker -->
+        <div class="shipping-section">
+            <div class="section-header">
+                <h3>Shipping Tracker</h3>
+                <span class="badge">Real-Time</span>
+            </div>
+            <div class="shipping-cards" id="shippingCards">
+                <div class="shipping-card-skeleton">Loading data...</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

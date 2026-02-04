@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup MFA - NextGate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a2332, #0f1419);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #1a2332;
+        }
+
+        .setup-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .qr-placeholder {
+            background: #f3f4f6;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+        }
+
+        .qr-placeholder img {
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+        }
+
+        .secret-code {
+            font-family: monospace;
+            background: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a2332;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 1rem;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-verify:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+        }
+
+        .link-back {
+            display: block;
+            margin-top: 1.5rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .link-back:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="setup-container">
+        <h1>Secure Your Account</h1>
+        <p>Scan the QR code below with your authenticator app (e.g., Google Authenticator, Authy) to enable Two-Factor
+            Authentication.</p>
+
+        <div class="qr-placeholder" id="qrContainer">
+            <div id="loadingQr">Loading QR Code...</div>
+            <img id="qrImage" style="display: none;" alt="MFA QR Code">
+        </div>
+
+        <p style="margin-bottom: 0.5rem; font-size: 0.875rem;">Or enter this code manually:</p>
+        <div class="secret-code" id="secretCode">...</div>
+
+        <form id="verifyForm">
+            <div class="input-group">
+                <input type="text" id="token" name="token" maxlength="6" placeholder="000000" required>
+            </div>
+            <button type="submit" class="btn-verify">Enable 2FA</button>
+        </form>
+
+        <div class="message" id="message"></div>
+
+        <a href="/dashboard/dashboard.html" class="link-back">Skip for now</a>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Load QR Code on startup
+        async function loadQR() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/mfa/setup`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/frontend/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('loadingQr').style.display = 'none';
+                    const img = document.getElementById('qrImage');
+                    img.src = data.qr_code;
+                    img.style.display = 'block';
+
+                    document.getElementById('secretCode').textContent = data.secret;
+                }
+            } catch (error) {
+                console.error('Error loading QR:', error);
+            }
+        }
+
+        loadQR();
+
+        // Handle verification
+        document.getElementById('verifyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const token = document.getElementById('token').value;
+            const message = document.getElementById('message');
+            const btn = document.querySelector('.btn-verify');
+
+            message.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/mfa/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    message.className = 'message success';
+                    message.textContent = '✓ 2FA Enabled successfully! Redirecting...';
+                    message.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/dashboard.html';
+                    }, 2000);
+                } else {
+                    message.className = 'message error';
+                    message.textContent = data.error || 'Invalid code. Please try again.';
+                    message.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Enable 2FA';
+                }
+            } catch (error) {
+                console.error('Verify error:', error);
+                message.className = 'message error';
+                message.textContent = 'Network error';
+                message.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Enable 2FA';
+            }
+        });
+    </script>
+</body>
+
+</html>

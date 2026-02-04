@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Plan - NextGate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a2332, #0f1419);
+            min-height: 100vh;
+            padding: 4rem 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 4rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #ff6b35;
+            font-weight: 600;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .plan-card.recommended {
+            border: 3px solid #ff6b35;
+        }
+
+        .plan-card.recommended::before {
+            content: "RECOMMENDED";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b35;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a2332;
+            margin-bottom: 1rem;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #1a2332;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price span {
+            font-size: 1.25rem;
+            color: #6b7280;
+            font-weight: 400;
+        }
+
+        .plan-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            padding: 0.75rem 0;
+            color: #1a2332;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .plan-features li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .btn-select {
+            width: 100%;
+            padding: 1rem;
+            background: #1a2332;
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-select:hover {
+            background: #2d3748;
+            transform: translateY(-2px);
+        }
+
+        .plan-card.recommended .btn-select {
+            background: #ff6b35;
+        }
+
+        .plan-card.recommended .btn-select:hover {
+            background: #e55a2b;
+        }
+
+        .message {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            padding: 1rem;
+            background: #fee2e2;
+            color: #ef4444;
+            border-radius: 0.75rem;
+            text-align: center;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .skip-link {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .skip-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .skip-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Choose Your Plan</h1>
+            <p>Start managing your Amazon business today</p>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="plans-grid">
+            <!-- Basic Plan -->
+            <div class="plan-card">
+                <div class="plan-name">Basic</div>
+                <div class="plan-price">$29<span>/month</span></div>
+                <div class="plan-description">Perfect for getting started</div>
+                <ul class="plan-features">
+                    <li>Up to 100 orders per month</li>
+                    <li>Basic analytics</li>
+                    <li>Email support</li>
+                    <li>7-day data retention</li>
+                </ul>
+                <button class="btn-select" onclick="selectPlan('basic')">Select Basic</button>
+            </div>
+
+            <!-- Pro Plan (Recommended) -->
+            <div class="plan-card recommended">
+                <div class="plan-name">Professional</div>
+                <div class="plan-price">$99<span>/month</span></div>
+                <div class="plan-description">Best for growing businesses</div>
+                <ul class="plan-features">
+                    <li>Unlimited orders</li>
+                    <li>Advanced analytics</li>
+                    <li>Priority support</li>
+                    <li>30-day data retention</li>
+                    <li>Custom reports</li>
+                    <li>API access</li>
+                </ul>
+                <button class="btn-select" onclick="selectPlan('pro')">Select Professional</button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="plan-card">
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-price">$299<span>/month</span></div>
+                <div class="plan-description">For large-scale operations</div>
+                <ul class="plan-features">
+                    <li>Everything in Pro</li>
+                    <li>Dedicated account manager</li>
+                    <li>Custom integrations</li>
+                    <li>Unlimited data retention</li>
+                    <li>White-label dashboard</li>
+                    <li>24/7 phone support</li>
+                </ul>
+                <button class="btn-select" onclick="selectPlan('enterprise')">Select Enterprise</button>
+            </div>
+        </div>
+
+        <div class="skip-link">
+            Not ready to subscribe? <a href="/frontend/login.html">Go to Login</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        async function selectPlan(plan) {
+            const message = document.getElementById('message');
+            message.classList.remove('show');
+
+            // For demo purposes, show message that Stripe needs to be configured
+            if (!window.location.search.includes('stripe=true')) {
+                message.textContent = '⚠️ Payment system not configured. Please add your Stripe API keys to .env file to enable subscriptions.';
+                message.classList.add('show');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/stripe/create-checkout-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ plan })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.url) {
+                    // Redirect to Stripe checkout
+                    window.location.href = data.url;
+                } else {
+                    message.textContent = data.error || 'Failed to create checkout session';
+                    message.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                message.textContent = 'Network error. Please try again.';
+                message.classList.add('show');
+            }
+        }
+    </script>
+</body>
+
+</html>

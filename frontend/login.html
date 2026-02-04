@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NextGate Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;600;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a2332, #0f1419);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #1a2332;
+        }
+
+        .logo p {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a2332;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-login:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+        }
+
+        .demo-info {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .demo-info strong {
+            color: #1a2332;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>NextGate</h1>
+            <p>Dashboard Login</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="admin@nextgate.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" value="demo123" required>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                Invalid credentials. Please try again.
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <!-- MFA Form (Hidden by default) -->
+        <form id="mfaForm" style="display: none;">
+            <div class="form-group" style="text-align: center;">
+                <label for="mfaToken">Authenticator Code</label>
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
+                    Enter the 6-digit code from your authenticator app
+                </p>
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <input type="text" id="mfaToken" name="mfaToken" maxlength="6" placeholder="000000"
+                        style="text-align: center; letter-spacing: 0.5rem; font-size: 1.5rem; width: 200px;" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">Verify Code</button>
+        </form>
+
+        <div class="login-link" style="text-align: center; margin-top: 1.5rem; color: #6b7280; font-size: 0.875rem;">
+            Don't have an account? <a href="/frontend/signup.html"
+                style="color: #ff6b35; text-decoration: none; font-weight: 600;">Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        const loginForm = document.getElementById('loginForm');
+        const mfaForm = document.getElementById('mfaForm');
+        const loginTitle = document.querySelector('.logo p');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Login Submission
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            errorMessage.classList.remove('show', 'success');
+            errorMessage.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.mfa_required) {
+                        // Switch to MFA view
+                        loginForm.style.display = 'none';
+                        mfaForm.style.display = 'block';
+                        loginTitle.textContent = 'Two-Factor Authentication';
+                        errorMessage.textContent = 'Please enter your authentication code';
+                        errorMessage.classList.add('success', 'show'); // Green prompt
+                        errorMessage.style.display = 'block';
+                        document.getElementById('mfaToken').focus();
+                    } else {
+                        // Direct login success
+                        window.location.href = '/dashboard/dashboard.html';
+                    }
+                } else {
+                    errorMessage.textContent = data.error || data.message || 'Login failed';
+                    errorMessage.classList.remove('success');
+                    errorMessage.classList.add('show');
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Network error. Please try again.';
+                errorMessage.classList.add('show');
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // MFA Submission
+        mfaForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const token = document.getElementById('mfaToken').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/mfa/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/dashboard/dashboard.html';
+                } else {
+                    errorMessage.textContent = data.error || 'Invalid code';
+                    errorMessage.classList.remove('success');
+                    errorMessage.classList.add('show');
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('MFA error:', error);
+                errorMessage.textContent = 'Network error. Please try again.';
+                errorMessage.classList.add('show');
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

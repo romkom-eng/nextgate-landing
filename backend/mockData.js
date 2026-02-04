@@ -120,7 +120,7 @@ const mockOrders = [
 const mockInventory = [
     {
         SKU: 'KBEAUTY-001',
-        ProductName: '무궁화 아이패드 (Wireless Earbuds)',
+        ProductName: 'Wireless Earbuds (K-Edition)',
         ASIN: 'B08XYZ1234',
         FulfillableQuantity: 150,
         InboundWorkingQuantity: 50,

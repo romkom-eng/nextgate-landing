@@ -136,7 +136,7 @@ function renderRevenueChart(trendData) {
         data: {
             labels: labels,
             datasets: [{
-                label: '일일 매출',
+                label: 'Daily Sales',
                 data: revenues,
                 borderColor: '#ff6b35',
                 backgroundColor: 'rgba(255, 107, 53, 0.1)',
@@ -207,7 +207,7 @@ function renderCostsChart(costs) {
     costsChart = new Chart(context, {
         type: 'doughnut',
         data: {
-            labels: ['Amazon 수수료', '배송비', '마케팅'],
+            labels: ['Amazon Fees', 'Shipping', 'Marketing'],
             datasets: [{
                 data: [costs.amazonFees, costs.shippingCosts, costs.marketingCosts],
                 backgroundColor: [
@@ -253,7 +253,7 @@ function renderOrdersTable(orders) {
     if (!tbody) return;
 
     if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">주문이 없습니다</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No orders found</td></tr>';
         return;
     }
 
@@ -280,7 +280,7 @@ function renderInventoryTable(products) {
     if (!tbody) return;
 
     if (!products || products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">재고가 없습니다</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No inventory found</td></tr>';
         return;
     }
 
@@ -303,7 +303,7 @@ function renderShippingCards(shipments) {
     if (!container) return;
 
     if (!shipments || shipments.length === 0) {
-        container.innerHTML = '<p class="text-center">배송 중인 상품이 없습니다</p>';
+        container.innerHTML = '<p class="text-center">No active shipments</p>';
         return;
     }
 

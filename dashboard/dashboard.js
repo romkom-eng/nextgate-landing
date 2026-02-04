@@ -3,7 +3,10 @@
 //  Real-time Data Fetching & Chart Rendering
 // ============================================
 
-const API_BASE_URL = '/api';
+// Auto-detect environment: use localhost:3000 for local development, /api for production
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : '/api';
 let revenueChart = null;
 let costsChart = null;
 

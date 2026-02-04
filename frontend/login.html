@@ -166,7 +166,10 @@
     </div>
 
     <script>
-        const API_BASE_URL = '/api';
+        // Auto-detect environment: use localhost:3000 for local development, /api for production
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000/api'
+            : '/api';
         const loginForm = document.getElementById('loginForm');
         const mfaForm = document.getElementById('mfaForm');
         const loginTitle = document.querySelector('.logo p');

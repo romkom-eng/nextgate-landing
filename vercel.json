@@ -28,6 +28,10 @@
             "dest": "/frontend/$1"
         },
         {
+            "src": "/(.*)\\.(css|js|png|jpg|jpeg|svg|ico)",
+            "dest": "/frontend/$1.$2"
+        },
+        {
             "src": "/",
             "dest": "/frontend/index.html"
         }

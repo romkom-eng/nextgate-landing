@@ -325,35 +325,37 @@ app.use((req, res) => {
 });
 
 // ========== Start Server ==========
-app.listen(PORT, () => {
-    console.log('='.repeat(60));
-    console.log('🚀 NextGate Backend Server with Authentication & Subscriptions');
-    console.log('='.repeat(60));
-    console.log(`✅ Server running on http://localhost:${PORT}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔧 Mock Data: ${process.env.USE_MOCK_DATA === 'true' ? 'Enabled' : 'Disabled'}`);
-    console.log(`💳 Stripe: ${process.env.STRIPE_SECRET_KEY ? 'Configured ✓' : 'Not configured ✗'}`);
-    console.log('');
-    console.log('📍 Available Routes:');
-    console.log(`   Landing Page:      http://localhost:${PORT}/`);
-    console.log(`   Login:             http://localhost:${PORT}/frontend/login.html`);
-    console.log(`   Dashboard:         http://localhost:${PORT}/dashboard/dashboard.html`);
-    console.log(`   API Health:        http://localhost:${PORT}/api/health`);
-    console.log('');
-    console.log('🔐 Authentication:');
-    console.log(`   POST /api/auth/signup   - Create new account`);
-    console.log(`   POST /api/auth/login    - Login`);
-    console.log(`   POST /api/auth/logout   - Logout`);
-    console.log(`   GET  /api/auth/status   - Check auth status`);
-    console.log('');
-    console.log('💳 Subscription:');
-    console.log(`   GET  /api/stripe/plans                    - View plans`);
-    console.log(`   POST /api/stripe/create-checkout-session - Start subscription`);
-    console.log('');
-    console.log('🔑 Demo Login:');
-    console.log(`   Email: admin@nextgate.com`);
-    console.log(`   Password: Admin@123456`);
-    console.log('='.repeat(60));
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log('='.repeat(60));
+        console.log('🚀 NextGate Backend Server with Authentication & Subscriptions');
+        console.log('='.repeat(60));
+        console.log(`✅ Server running on http://localhost:${PORT}`);
+        console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`🔧 Mock Data: ${process.env.USE_MOCK_DATA === 'true' ? 'Enabled' : 'Disabled'}`);
+        console.log(`💳 Stripe: ${process.env.STRIPE_SECRET_KEY ? 'Configured ✓' : 'Not configured ✗'}`);
+        console.log('');
+        console.log('📍 Available Routes:');
+        console.log(`   Landing Page:      http://localhost:${PORT}/`);
+        console.log(`   Login:             http://localhost:${PORT}/frontend/login.html`);
+        console.log(`   Dashboard:         http://localhost:${PORT}/dashboard/dashboard.html`);
+        console.log(`   API Health:        http://localhost:${PORT}/api/health`);
+        console.log('');
+        console.log('🔐 Authentication:');
+        console.log(`   POST /api/auth/signup   - Create new account`);
+        console.log(`   POST /api/auth/login    - Login`);
+        console.log(`   POST /api/auth/logout   - Logout`);
+        console.log(`   GET  /api/auth/status   - Check auth status`);
+        console.log('');
+        console.log('💳 Subscription:');
+        console.log(`   GET  /api/stripe/plans                    - View plans`);
+        console.log(`   POST /api/stripe/create-checkout-session - Start subscription`);
+        console.log('');
+        console.log('🔑 Demo Login:');
+        console.log(`   Email: admin@nextgate.com`);
+        console.log(`   Password: Admin@123456`);
+        console.log('='.repeat(60));
+    });
+}
 
 module.exports = app;

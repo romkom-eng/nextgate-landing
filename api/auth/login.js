@@ -1,23 +1,19 @@
 // ============================================
-// Authentication Routes (Vercel-Compatible)
-// Stateless JWT-only authentication
+// Vercel Serverless Function: /api/auth/login
 // ============================================
 
-const express = require('express');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nextgate-jwt-secret-change-in-production';
 const JWT_EXPIRES_IN = '24h';
 
-// In-memory user database (for demo)
+// In-memory user database (demo)
 const users = [
     {
         id: 1,
         email: 'admin@nextgate.com',
-        password_hash: '$2a$10$dZN.sCCn9ofbaFHbrCssWOK/H6.FEvg2miBd.kbbYkOOwKv0FcE.e', // Admin@123456
+        password_hash: '$2a$10$dZN.sCCn9ofbaFHbrCssWOK/H6.FEvg2miBd.kbbYkOOwKv0FcE.e',
         name: 'NextGate Admin',
         role: 'admin',
         subscription_status: 'active',
@@ -25,25 +21,26 @@ const users = [
     }
 ];
 
-// Helper function to generate JWT
-function generateJWT(user) {
-    return jwt.sign(
-        {
-            id: user.id,
-            email: user.email,
-            role: user.role
-        },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-    );
-}
+module.exports = async (req, res) => {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-// Login endpoint
-router.post('/login', async (req, res) => {
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     try {
         const { email, password } = req.body;
 
-        console.log('Login attempt:', email);
+        console.log('Login attempt for:', email);
 
         if (!email || !password) {
             return res.status(400).json({
@@ -56,6 +53,7 @@ router.post('/login', async (req, res) => {
         const user = users.find(u => u.email === email);
 
         if (!user) {
+            console.log('User not found:', email);
             return res.status(401).json({
                 success: false,
                 error: 'Invalid email or password'
@@ -66,6 +64,7 @@ router.post('/login', async (req, res) => {
         const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
         if (!isValidPassword) {
+            console.log('Invalid password for:', email);
             return res.status(401).json({
                 success: false,
                 error: 'Invalid email or password'
@@ -82,9 +81,19 @@ router.post('/login', async (req, res) => {
             subscription_plan: user.subscription_plan
         };
 
-        const token = generateJWT(sanitizedUser);
+        const token = jwt.sign(
+            {
+                id: user.id,
+                email: user.email,
+                role: user.role
+            },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES_IN }
+        );
 
-        return res.json({
+        console.log('Login successful for:', email);
+
+        return res.status(200).json({
             success: true,
             message: 'Login successful',
             user: sanitizedUser,
@@ -98,43 +107,4 @@ router.post('/login', async (req, res) => {
             error: 'Internal server error'
         });
     }
-});
-
-// Logout endpoint (stateless, client removes token)
-router.post('/logout', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Logged out successfully'
-    });
-});
-
-// Status check
-router.get('/status', (req, res) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(401).json({
-            success: false,
-            authenticated: false
-        });
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        res.json({
-            success: true,
-            authenticated: true,
-            user: decoded
-        });
-    } catch (error) {
-        res.status(401).json({
-            success: false,
-            authenticated: false,
-            error: 'Invalid token'
-        });
-    }
-});
-
-module.exports = router;
+};

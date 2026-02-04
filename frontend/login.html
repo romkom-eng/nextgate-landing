@@ -196,6 +196,11 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    // Store JWT token in localStorage
+                    if (data.token) {
+                        localStorage.setItem('jwt_token', data.token);
+                    }
+
                     if (data.mfa_required) {
                         // Switch to MFA view
                         loginForm.style.display = 'none';

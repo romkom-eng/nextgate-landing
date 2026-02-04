@@ -43,8 +43,18 @@ function updateLastUpdated() {
 // ========== API Calls ==========
 async function fetchData(endpoint) {
     try {
+        const token = localStorage.getItem('jwt_token');
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            credentials: 'include' // Include cookies for session
+            credentials: 'include', // Include cookies for session
+            headers: headers
         });
 
         if (!response.ok) {

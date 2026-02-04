@@ -42,7 +42,10 @@ const loginLimiter = rateLimit({
 });
 
 // ========== Middleware ==========
-app.use(cors());
+app.use(cors({
+    origin: true, // Allow any origin (or specify your Vercel domain)
+    credentials: true // Enable credentials (cookies, authorization headers)
+}));
 
 // Parse JSON
 app.use((req, res, next) => {
@@ -63,6 +66,7 @@ app.use(session({
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000
     }
 }));

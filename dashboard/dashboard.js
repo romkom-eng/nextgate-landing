@@ -3,7 +3,7 @@
 //  Real-time Data Fetching & Chart Rendering
 // ============================================
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = '/api';
 let revenueChart = null;
 let costsChart = null;
 

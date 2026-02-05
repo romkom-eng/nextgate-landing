@@ -40,7 +40,7 @@
         // 로그인 확인
         onAuthStateChanged(auth, (user) => {
             if (!user || !ADMIN_EMAILS.includes(user.email)) {
-                window.location.href = '/frontend/login.html';
+                window.location.href = '/login.html';
             } else {
                 loadDashboardData();
             }
@@ -104,7 +104,7 @@
 
         window.logout = function () {
             auth.signOut().then(() => {
-                window.location.href = '/frontend/login.html';
+                window.location.href = '/login.html';
             });
         };
     </script>

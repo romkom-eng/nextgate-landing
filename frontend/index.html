@@ -12,6 +12,26 @@
     <meta property="og:description" content="사장님은 제품만 하세요, 미국 시장은 저희가 전부 하겠습니다.">
     <meta property="og:type" content="website">
 
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+
+        // 페이지뷰 Firebase에 저장
+        fetch('/api/track-visit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                page: window.location.pathname,
+                referrer: document.referrer,
+                timestamp: new Date().toISOString()
+            })
+        });
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

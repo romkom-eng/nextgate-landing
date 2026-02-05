@@ -4,27 +4,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입 - NextGate</title>
+    <title>무료 체험 시작 - NextGate</title>
     <link rel="stylesheet" href="/frontend/styles.css">
+
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVdLKvsw1Ck11N9mdrCEKPNfak7vDQJDA",
+            authDomain: "nextgate-kor.firebaseapp.com",
+            projectId: "nextgate-kor",
+            storageBucket: "nextgate-kor.firebasestorage.app",
+            messagingSenderId: "1066049963062",
+            appId: "1:1066049963062:web:b23ba60b0ba7e22e99c6ab"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Stripe 초기화
+        const stripe = Stripe('pk_test_51QbEzwRsWy5qbYPuqKhCZYIxP6pJCJjqzCphV9VWK6F7Mwx18QXLHNdP3ylF7Mwx18QXLHNdP3y'); // Stripe Public Key
+
+        window.handleRegister = async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const company = document.getElementById('company').value;
+            const phone = document.getElementById('phone').value;
+
+            try {
+                // 1. Firebase 회원가입
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Firestore에 사용자 정보 저장
+                await setDoc(doc(db, 'users', user.uid), {
+                    email,
+                    company,
+                    phone,
+                    createdAt: new Date().toISOString(),
+                    trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14일 후
+                    subscriptionStatus: 'trial',
+                    hasPaymentMethod: false
+                });
+
+                // 3. Stripe Checkout으로 리디렉션 (카드 등록)
+                const response = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: user.uid,
+                        email: email
+                    })
+                });
+
+                const { sessionId } = await response.json();
+
+                // Stripe Checkout 페이지로 이동
+                const { error } = await stripe.redirectToCheckout({ sessionId });
+
+                if (error) {
+                    console.error('Stripe error:', error);
+                    alert('결제 설정 중 오류가 발생했습니다. 다시 시도해주세요.');
+                }
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('이미 사용 중인 이메일입니다.');
+                } else if (error.code === 'auth/weak-password') {
+                    alert('비밀번호는 최소 6자 이상이어야 합니다.');
+                } else {
+                    alert('회원가입 중 오류가 발생했습니다: ' + error.message);
+                }
+            }
+        };
+    </script>
+
     <style>
-        .register-container {
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            padding: 20px;
         }
 
-        .register-box {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+        .register-container {
+            background: white;
             padding: 40px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
         }
 
         .register-header {
@@ -33,14 +118,25 @@
         }
 
         .register-header h1 {
-            color: #fff;
-            font-size: 32px;
+            font-size: 28px;
             margin-bottom: 10px;
+            color: #333;
         }
 
         .register-header p {
-            color: rgba(255, 255, 255, 0.7);
+            color: #666;
             font-size: 14px;
+        }
+
+        .trial-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
         }
 
         .form-group {
@@ -49,190 +145,125 @@
 
         .form-group label {
             display: block;
-            color: #fff;
             margin-bottom: 8px;
-            font-size: 14px;
+            font-weight: 500;
+            color: #333;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            color: #fff;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #ff6b35;
-            background: rgba(255, 255, 255, 0.15);
+            border-color: #667eea;
         }
 
-        .btn-register {
+        .submit-button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s;
-            margin-top: 10px;
+            transition: transform 0.2s;
         }
 
-        .btn-register:hover {
+        .submit-button:hover {
             transform: translateY(-2px);
+        }
+
+        .terms {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
         }
 
         .login-link {
             text-align: center;
             margin-top: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            color: #666;
         }
 
         .login-link a {
-            color: #ff6b35;
+            color: #667eea;
             text-decoration: none;
+            font-weight: 600;
         }
 
-        .error-message {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-            color: #ff6b6b;
-            padding: 12px;
+        .payment-info {
+            background: #f8f9fa;
+            padding: 15px;
             border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #555;
         }
 
-        .success-message {
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            color: #51cf66;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
+        .payment-info strong {
+            color: #667eea;
         }
     </style>
 </head>
 
 <body>
     <div class="register-container">
-        <div class="register-box">
-            <div class="register-header">
-                <h1>NextGate 회원가입</h1>
-                <p>아마존 글로벌 진출을 시작하세요</p>
+        <div class="register-header">
+            <h1>🚀 NextGate 시작하기</h1>
+            <div class="trial-badge">14일 무료 체험</div>
+            <p>신용카드 등록 후 14일간 무료로 사용하세요</p>
+        </div>
+
+        <div class="payment-info">
+            <strong>💳 결제 안내</strong><br>
+            • 14일 무료 체험 후 자동 결제됩니다<br>
+            • 체험 기간 동안 언제든지 취소 가능<br>
+            • 월 $29 (₩39,000)
+        </div>
+
+        <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label for="company">회사명</label>
+                <input type="text" id="company" name="company" required placeholder="회사명을 입력하세요">
             </div>
 
-            <div id="error-message" class="error-message"></div>
-            <div id="success-message" class="success-message"></div>
-
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="email">이메일 *</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="companyName">회사명</label>
-                    <input type="text" id="companyName" name="companyName">
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">연락처</label>
-                    <input type="tel" id="phone" name="phone">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">비밀번호 * (최소 8자)</label>
-                    <input type="password" id="password" name="password" required minlength="8">
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmPassword">비밀번호 확인 *</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
-                </div>
-
-                <button type="submit" class="btn-register">회원가입</button>
-            </form>
-
-            <div class="login-link">
-                이미 계정이 있으신가요? <a href="/frontend/login.html">로그인</a>
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required placeholder="email@example.com">
             </div>
+
+            <div class="form-group">
+                <label for="phone">전화번호</label>
+                <input type="tel" id="phone" name="phone" required placeholder="010-1234-5678">
+            </div>
+
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" required placeholder="최소 6자 이상" minlength="6">
+            </div>
+
+            <button type="submit" class="submit-button">신용카드 등록하고 무료 체험 시작</button>
+
+            <div class="terms">
+                가입 시 <a href="/terms" style="color: #667eea;">이용약관</a> 및 <a href="/privacy"
+                    style="color: #667eea;">개인정보처리방침</a>에 동의하는 것으로 간주됩니다.
+            </div>
+        </form>
+
+        <div class="login-link">
+            이미 계정이 있으신가요? <a href="/frontend/login.html">로그인</a>
         </div>
     </div>
-
-    <script>
-        const API_BASE_URL = window.location.hostname === 'localhost'
-            ? 'http://localhost:3000/api'
-            : 'https://nextgate-landing-uzcn.vercel.app/api';
-
-        const form = document.getElementById('registerForm');
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const companyName = document.getElementById('companyName').value;
-            const phone = document.getElementById('phone').value;
-
-            // Hide previous messages
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
-
-            // Validate password match
-            if (password !== confirmPassword) {
-                errorMessage.textContent = '비밀번호가 일치하지 않습니다.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, companyName, phone })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Store JWT token
-                    if (data.token) {
-                        localStorage.setItem('jwt_token', data.token);
-                    }
-
-                    successMessage.textContent = '회원가입이 완료되었습니다! 로그인 페이지로 이동합니다...';
-                    successMessage.style.display = 'block';
-
-                    // Redirect to dashboard
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/dashboard.html';
-                    }, 2000);
-                } else {
-                    errorMessage.textContent = data.error || '회원가입에 실패했습니다.';
-                    errorMessage.style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Registration error:', error);
-                errorMessage.textContent = '서버 오류가 발생했습니다. 다시 시도해주세요.';
-                errorMessage.style.display = 'block';
-            }
-        });
-    </script>
 </body>
 
 </html>

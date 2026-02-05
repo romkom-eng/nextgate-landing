@@ -5,17 +5,21 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'denisoppa00@gmail.com';
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
+// Cloudflare Pages Functions handler
+export async function onRequestPost(context) {
     try {
-        const { companyName, email, phone, productCategory, otherCategory, inquiryDetails } = req.body;
+        const body = await context.request.json();
+        const { companyName, contactName, email, phone, productCategory, otherCategory, message } = body;
 
         // Validate required fields
         if (!companyName || !email || !phone) {
-            return res.status(400).json({ error: 'Missing required fields' });
+            return new Response(JSON.stringify({
+                error: 'Missing required fields',
+                details: '회사명, 이메일, 연락처는 필수 항목입니다.'
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         // If other category is selected, use the custom category
@@ -27,43 +31,54 @@ export default async function handler(req, res) {
         const aiReport = await generateAIConsultation({
             companyName,
             productCategory: finalCategory,
-            inquiryDetails
+            inquiryDetails: message,
+            geminiApiKey: context.env.GEMINI_API_KEY || GEMINI_API_KEY
         });
 
         // Send consultation report to customer
         await sendConsultationEmail({
             to: email,
             customerName: companyName,
-            consultation: aiReport
+            consultation: aiReport,
+            resendApiKey: context.env.RESEND_API_KEY || RESEND_API_KEY
         });
 
         // Send notification to admin
         await sendAdminNotification({
             companyName,
+            contactName,
             email,
             phone,
             productCategory: finalCategory,
-            inquiryDetails,
-            aiReport
+            inquiryDetails: message,
+            aiReport,
+            resendApiKey: context.env.RESEND_API_KEY || RESEND_API_KEY,
+            contactEmail: context.env.CONTACT_EMAIL || CONTACT_EMAIL
         });
 
-        return res.status(200).json({
+        return new Response(JSON.stringify({
             success: true,
             message: 'Consultation request received. You will receive a detailed report via email shortly.',
             preview: aiReport.summary
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
         });
 
     } catch (error) {
         console.error('AI Consultation error:', error);
-        return res.status(500).json({
+        return new Response(JSON.stringify({
             error: 'Failed to process consultation request',
             message: error.message
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
         });
     }
 }
 
 // Generate AI-powered business consultation
-async function generateAIConsultation({ companyName, productCategory, inquiryDetails }) {
+async function generateAIConsultation({ companyName, productCategory, inquiryDetails, geminiApiKey }) {
     const prompt = `You are a professional Amazon marketplace consultant specializing in helping businesses expand to the US market.
 
 Company: ${companyName}
@@ -114,7 +129,7 @@ Format the response in a professional, actionable manner with specific numbers a
 
     try {
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -161,7 +176,7 @@ Format the response in a professional, actionable manner with specific numbers a
 }
 
 // Send detailed consultation report to customer
-async function sendConsultationEmail({ to, customerName, consultation }) {
+async function sendConsultationEmail({ to, customerName, consultation, resendApiKey }) {
     const emailHTML = `
     <!DOCTYPE html>
     <html>
@@ -240,10 +255,11 @@ async function sendConsultationEmail({ to, customerName, consultation }) {
 }
 
 // Send notification to admin with full details
-async function sendAdminNotification({ companyName, email, phone, productCategory, inquiryDetails, aiReport }) {
+async function sendAdminNotification({ companyName, contactName, email, phone, productCategory, inquiryDetails, aiReport, resendApiKey, contactEmail }) {
     const emailHTML = `
     <h2>New AI Consultation Request</h2>
     <p><strong>Company:</strong> ${companyName}</p>
+    <p><strong>Contact Name:</strong> ${contactName || 'N/A'}</p>
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Phone:</strong> ${phone}</p>
     <p><strong>Product Category:</strong> ${productCategory || 'Not specified'}</p>
@@ -264,7 +280,7 @@ async function sendAdminNotification({ companyName, email, phone, productCategor
         },
         body: JSON.stringify({
             from: 'NextGate System <system@nextgate.co>',
-            to: [CONTACT_EMAIL],
+            to: [contactEmail],
             subject: `[New Lead] ${companyName} - AI Consultation Request`,
             html: emailHTML
         })

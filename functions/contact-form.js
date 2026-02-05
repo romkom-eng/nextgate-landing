@@ -5,6 +5,11 @@
 // Cloudflare Pages Functions handler
 export async function onRequestPost(context) {
     try {
+        // Get environment variables from context
+        const GEMINI_API_KEY = context.env.GEMINI_API_KEY;
+        const RESEND_API_KEY = context.env.RESEND_API_KEY;
+        const CONTACT_EMAIL = context.env.CONTACT_EMAIL || 'denisoppa00@gmail.com';
+
         const body = await context.request.json();
         const { companyName, contactName, email, phone, productCategory, otherCategory, message } = body;
 
@@ -29,7 +34,7 @@ export async function onRequestPost(context) {
             companyName,
             productCategory: finalCategory,
             inquiryDetails: message,
-            geminiApiKey: context.env.GEMINI_API_KEY || GEMINI_API_KEY
+            geminiApiKey: GEMINI_API_KEY
         });
 
         // Send consultation report to customer
@@ -37,7 +42,7 @@ export async function onRequestPost(context) {
             to: email,
             customerName: companyName,
             consultation: aiReport,
-            resendApiKey: context.env.RESEND_API_KEY || RESEND_API_KEY
+            resendApiKey: RESEND_API_KEY
         });
 
         // Send notification to admin
@@ -49,8 +54,8 @@ export async function onRequestPost(context) {
             productCategory: finalCategory,
             inquiryDetails: message,
             aiReport,
-            resendApiKey: context.env.RESEND_API_KEY || RESEND_API_KEY,
-            contactEmail: context.env.CONTACT_EMAIL || CONTACT_EMAIL
+            resendApiKey: RESEND_API_KEY,
+            contactEmail: CONTACT_EMAIL
         });
 
         return new Response(JSON.stringify({

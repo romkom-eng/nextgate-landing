@@ -879,17 +879,19 @@ section {
 
 .contact-feature {
     display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
+    align-items: flex-start;
+    gap: 1rem;
     color: var(--color-white);
     font-weight: 500;
     font-size: 1.125rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.4;
 }
 
 .contact-feature .feature-icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
     background: var(--color-orange-main);
     color: var(--color-white);
     border-radius: 50%;
@@ -897,8 +899,9 @@ section {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     flex-shrink: 0;
+    margin-top: -4px;
 }
 
 .contact-form-wrapper {

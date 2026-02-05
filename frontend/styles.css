@@ -880,15 +880,16 @@ section {
 .contact-feature {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
     color: var(--color-white);
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
 }
 
 .contact-feature .feature-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     background: var(--color-orange-main);
     color: var(--color-white);
     border-radius: 50%;
@@ -896,6 +897,7 @@ section {
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 1.125rem;
     flex-shrink: 0;
 }
 

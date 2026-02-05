@@ -602,9 +602,52 @@
         });
 
         // Contact form
-        document.getElementById('contactForm')?.addEventListener('submit', (e) => {
+        // Contact form submission
+        document.getElementById('contactForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Thank you! We will contact you within 24 hours.');
+
+            const form = e.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+
+            // Get form data
+            const formData = {
+                companyName: form.querySelector('input[type="text"]').value,
+                email: form.querySelector('input[type="email"]').value,
+                phone: form.querySelector('input[type="tel"]').value,
+                productCategory: form.querySelector('select').value,
+                inquiryDetails: form.querySelector('textarea').value
+            };
+
+            // Disable button and show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = '전송 중...';
+
+            try {
+                const response = await fetch('/api/contact-form', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Thank you! We will contact you within 24 hours.');
+                    form.reset();
+                } else {
+                    const error = await response.json();
+                    alert('Sorry, there was an error submitting your form. Please try again or email us directly at contact@nextgate.co');
+                    console.error('Form submission error:', error);
+                }
+            } catch (error) {
+                alert('Sorry, there was an error submitting your form. Please try again or email us directly at contact@nextgate.co');
+                console.error('Network error:', error);
+            } finally {
+                // Re-enable button
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
         });
     </script>
 </body>

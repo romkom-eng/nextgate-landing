@@ -237,7 +237,7 @@ async function sendConsultationEmail({ to, customerName, consultation, resendApi
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RESEND_API_KEY}`
+            'Authorization': `Bearer ${resendApiKey}`
         },
         body: JSON.stringify({
             from: 'NextGate AI Consultant <consultation@nextgate.co>',
@@ -276,7 +276,7 @@ async function sendAdminNotification({ companyName, contactName, email, phone, p
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RESEND_API_KEY}`
+            'Authorization': `Bearer ${resendApiKey}`
         },
         body: JSON.stringify({
             from: 'NextGate System <system@nextgate.co>',

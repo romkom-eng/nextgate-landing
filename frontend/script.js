@@ -112,7 +112,7 @@ if (contactForm) {
         });
     }
 
-    contactForm.addEventListener('submit', function (e) {
+    contactForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         // Get form data
@@ -132,23 +132,42 @@ if (contactForm) {
         submitButton.innerHTML = '<span>전송 중...</span>';
         submitButton.disabled = true;
 
-        // Simulate form submission (replace with actual API call)
-        setTimeout(() => {
-            // Show success message
-            alert('문의가 성공적으로 접수되었습니다! 24시간 내에 연락드리겠습니다.');
+        try {
+            // Call the API
+            const response = await fetch('/contact-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
 
-            // Reset form
-            contactForm.reset();
-            otherCategoryGroup.style.display = 'none';
-            otherCategoryInput.required = false;
+            const data = await response.json();
 
+            if (response.ok) {
+                // Show success message
+                alert('문의가 성공적으로 접수되었습니다! 24시간 내에 연락드리겠습니다.\n\nAI 컨설팅 리포트가 이메일로 발송되었습니다.');
+
+                // Reset form
+                contactForm.reset();
+                if (otherCategoryGroup) {
+                    otherCategoryGroup.style.display = 'none';
+                }
+                if (otherCategoryInput) {
+                    otherCategoryInput.required = false;
+                }
+            } else {
+                // Show error message
+                alert('죄송합니다. 전송 중 오류가 발생했습니다.\n\n' + (data.error || '다시 시도해 주시거나 contact@nextgate.co로 직접 이메일을 보내주세요.'));
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            alert('죄송합니다. 전송 중 오류가 발생했습니다.\n\n다시 시도해 주시거나 contact@nextgate.co로 직접 이메일을 보내주세요.');
+        } finally {
             // Restore button
             submitButton.innerHTML = originalText;
             submitButton.disabled = false;
-
-            // Log form data (for demonstration)
-            console.log('Form submitted:', formData);
-        }, 1500);
+        }
     });
 }
 

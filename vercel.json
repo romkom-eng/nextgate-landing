@@ -1,10 +1,27 @@
 {
-    "cleanUrls": true,
-    "trailingSlash": false,
-    "redirects": [
+    "version": 2,
+    "builds": [
         {
-            "source": "/",
-            "destination": "/frontend/index.html"
+            "src": "backend/server.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "frontend/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "backend/server.js"
+        },
+        {
+            "src": "/frontend/(.*)",
+            "dest": "/frontend/$1"
+        },
+        {
+            "src": "/",
+            "dest": "/frontend/index.html"
         }
     ]
 }

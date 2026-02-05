@@ -11,17 +11,22 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { companyName, email, phone, productCategory, inquiryDetails } = req.body;
+        const { companyName, email, phone, productCategory, otherCategory, inquiryDetails } = req.body;
 
         // Validate required fields
         if (!companyName || !email || !phone) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
+        // If other category is selected, use the custom category
+        const finalCategory = productCategory === 'other' && otherCategory
+            ? otherCategory
+            : productCategory;
+
         // Generate AI consultation report
         const aiReport = await generateAIConsultation({
             companyName,
-            productCategory,
+            productCategory: finalCategory,
             inquiryDetails
         });
 
@@ -37,7 +42,7 @@ export default async function handler(req, res) {
             companyName,
             email,
             phone,
-            productCategory,
+            productCategory: finalCategory,
             inquiryDetails,
             aiReport
         });

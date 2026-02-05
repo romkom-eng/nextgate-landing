@@ -3,7 +3,7 @@
 // ============================================
 
 // ========== Navbar Scroll Effect ==========
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const navbar = document.getElementById('navbar');
     if (window.scrollY > 100) {
         navbar.classList.add('scrolled');
@@ -18,12 +18,12 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         e.preventDefault();
         const targetId = this.getAttribute('href');
         if (targetId === '#') return;
-        
+
         const targetElement = document.querySelector(targetId);
         if (targetElement) {
             const navbarHeight = document.getElementById('navbar').offsetHeight;
             const targetPosition = targetElement.offsetTop - navbarHeight;
-            
+
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
@@ -37,7 +37,7 @@ const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const navLinks = document.querySelector('.nav-links');
 
 if (mobileMenuToggle) {
-    mobileMenuToggle.addEventListener('click', function() {
+    mobileMenuToggle.addEventListener('click', function () {
         navLinks.classList.toggle('active');
         this.classList.toggle('active');
     });
@@ -49,13 +49,13 @@ class AnimateOnScroll {
         this.items = document.querySelectorAll('[data-aos]');
         this.init();
     }
-    
+
     init() {
         this.observeElements();
         // Initial check for elements already in view
         this.checkElements();
     }
-    
+
     observeElements() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -67,17 +67,17 @@ class AnimateOnScroll {
             threshold: 0.1,
             rootMargin: '0px 0px -100px 0px'
         });
-        
+
         this.items.forEach(item => {
             observer.observe(item);
         });
     }
-    
+
     checkElements() {
         this.items.forEach(item => {
             const rect = item.getBoundingClientRect();
             const windowHeight = window.innerHeight;
-            
+
             if (rect.top < windowHeight - 100) {
                 item.classList.add('aos-animate');
             }
@@ -86,7 +86,7 @@ class AnimateOnScroll {
 }
 
 // Initialize AOS when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     new AnimateOnScroll();
 });
 
@@ -94,9 +94,27 @@ document.addEventListener('DOMContentLoaded', function() {
 const contactForm = document.getElementById('contactForm');
 
 if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    // Show/hide other category field
+    const productCategorySelect = document.getElementById('productCategory');
+    const otherCategoryGroup = document.getElementById('otherCategoryGroup');
+    const otherCategoryInput = document.getElementById('otherCategory');
+
+    if (productCategorySelect && otherCategoryGroup) {
+        productCategorySelect.addEventListener('change', function () {
+            if (this.value === 'other') {
+                otherCategoryGroup.style.display = 'block';
+                otherCategoryInput.required = true;
+            } else {
+                otherCategoryGroup.style.display = 'none';
+                otherCategoryInput.required = false;
+                otherCategoryInput.value = '';
+            }
+        });
+    }
+
+    contactForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         // Get form data
         const formData = {
             companyName: document.getElementById('companyName').value,
@@ -104,27 +122,30 @@ if (contactForm) {
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
             productCategory: document.getElementById('productCategory').value,
+            otherCategory: document.getElementById('otherCategory').value || '',
             message: document.getElementById('message').value
         };
-        
+
         // Show loading state
         const submitButton = e.target.querySelector('.submit-button');
         const originalText = submitButton.innerHTML;
         submitButton.innerHTML = '<span>전송 중...</span>';
         submitButton.disabled = true;
-        
+
         // Simulate form submission (replace with actual API call)
         setTimeout(() => {
             // Show success message
             alert('문의가 성공적으로 접수되었습니다! 24시간 내에 연락드리겠습니다.');
-            
+
             // Reset form
             contactForm.reset();
-            
+            otherCategoryGroup.style.display = 'none';
+            otherCategoryInput.required = false;
+
             // Restore button
             submitButton.innerHTML = originalText;
             submitButton.disabled = false;
-            
+
             // Log form data (for demonstration)
             console.log('Form submitted:', formData);
         }, 1500);
@@ -136,7 +157,7 @@ function animateCounter(element, target, duration = 2000) {
     const start = 0;
     const increment = target / (duration / 16);
     let current = start;
-    
+
     const timer = setInterval(() => {
         current += increment;
         if (current >= target) {
@@ -149,7 +170,7 @@ function animateCounter(element, target, duration = 2000) {
 }
 
 // ========== Parallax Effect for Hero Background ==========
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const heroBackground = document.querySelector('.hero-background');
     if (heroBackground) {
         const scrolled = window.scrollY;
@@ -165,7 +186,7 @@ const navItems = document.querySelectorAll('.nav-links a[href^="#"]');
 window.addEventListener('scroll', () => {
     let current = '';
     const scrollY = window.scrollY;
-    
+
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
@@ -173,7 +194,7 @@ window.addEventListener('scroll', () => {
             current = section.getAttribute('id');
         }
     });
-    
+
     navItems.forEach(item => {
         item.classList.remove('active');
         if (item.getAttribute('href') === `#${current}`) {
@@ -203,7 +224,7 @@ const debouncedScroll = debounce(() => {
 window.addEventListener('scroll', debouncedScroll);
 
 // ========== Add Loading Animation ==========
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     document.body.classList.add('loaded');
 });
 
@@ -226,7 +247,7 @@ if ('IntersectionObserver' in window) {
             }
         });
     });
-    
+
     document.querySelectorAll('img[data-src]').forEach(img => {
         imageObserver.observe(img);
     });
@@ -236,11 +257,11 @@ if ('IntersectionObserver' in window) {
 const cards = document.querySelectorAll('.problem-card, .step-card, .feature-card, .trust-card');
 
 cards.forEach(card => {
-    card.addEventListener('mouseenter', function() {
+    card.addEventListener('mouseenter', function () {
         this.style.transform = 'translateY(-10px) scale(1.02)';
     });
-    
-    card.addEventListener('mouseleave', function() {
+
+    card.addEventListener('mouseleave', function () {
         this.style.transform = '';
     });
 });
@@ -256,7 +277,7 @@ copyrightElements.forEach(el => {
 function trackEvent(category, action, label) {
     // Placeholder for analytics tracking
     console.log('Event tracked:', { category, action, label });
-    
+
     // Example: Google Analytics 4
     // if (typeof gtag !== 'undefined') {
     //     gtag('event', action, {
@@ -268,7 +289,7 @@ function trackEvent(category, action, label) {
 
 // Track CTA button clicks
 document.querySelectorAll('.cta-button, .submit-button').forEach(button => {
-    button.addEventListener('click', function(e) {
+    button.addEventListener('click', function (e) {
         const buttonText = this.textContent.trim();
         trackEvent('Engagement', 'CTA Click', buttonText);
     });
@@ -278,11 +299,11 @@ document.querySelectorAll('.cta-button, .submit-button').forEach(button => {
 const formInputs = document.querySelectorAll('.form-group input, .form-group select, .form-group textarea');
 
 formInputs.forEach(input => {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
         this.parentElement.classList.add('focused');
     });
-    
-    input.addEventListener('blur', function() {
+
+    input.addEventListener('blur', function () {
         this.parentElement.classList.remove('focused');
         if (this.value) {
             this.parentElement.classList.add('filled');

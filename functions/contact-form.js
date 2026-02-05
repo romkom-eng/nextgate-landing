@@ -1,9 +1,6 @@
 // AI-Powered Business Consultation API
 // Analyzes business information and provides automated consulting
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'denisoppa00@gmail.com';
 
 // Cloudflare Pages Functions handler
 export async function onRequestPost(context) {

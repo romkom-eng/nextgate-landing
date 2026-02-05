@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NextGate - Your Gateway to US Market Success</title>
     <meta name="description"
-        content="From Amazon listing to US local delivery, start your global expansion with $0 upfront. Data-driven solution for K-Beauty and Korean food manufacturers.">
+        content="From Amazon listing to US local delivery, start your global expansion with $0 upfront. Complete Amazon marketplace solution with real-time dashboard and logistics management.">
     <meta name="google-site-verification" content="HzhoSKhB8S81e_hDWBLYlXkzeYCYXy0UHCjT9kgJ_h0" />
     <!-- SEO Meta Tags -->
     <meta property="og:title" content="NextGate - Your Gateway to US Market Success">
@@ -41,47 +41,38 @@
 
     <link rel="stylesheet" href="/frontend/styles.css">
     <style>
-        /* Language Switcher */
+        /* Language Switcher in Nav */
         .lang-switcher {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1000;
             display: flex;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 8px 12px;
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            gap: 8px;
+            margin-left: 15px;
         }
 
         .lang-switcher a {
-            padding: 6px 12px;
-            border-radius: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
             text-decoration: none;
-            color: #666;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
+            font-size: 14px;
             transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .lang-switcher a.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         .lang-switcher a:hover:not(.active) {
-            background: #f0f0f0;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
         }
     </style>
 </head>
 
 <body>
-    <!-- Language Switcher -->
-    <div class="lang-switcher">
-        <a href="/frontend/index.html">한국어</a>
-        <a href="/frontend/index-en.html" class="active">English</a>
-    </div>
 
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
@@ -95,6 +86,10 @@
                     <a href="#services">Services</a>
                     <a href="#features">Features</a>
                     <a href="#trust">Why NextGate</a>
+                    <div class="lang-switcher">
+                        <a href="/frontend/index.html">한국어</a>
+                        <a href="/frontend/index-en.html" class="active">EN</a>
+                    </div>
                     <a href="/frontend/login.html" class="cta-button-small">Login</a>
                 </div>
                 <button class="mobile-menu-toggle" id="mobileMenuToggle">
@@ -342,7 +337,7 @@
                         </svg>
                     </div>
                     <h3>Real-time Shipment Tracker</h3>
-                    <p>Track your products in real-time - from Korea shipment to US customer delivery.</p>
+                    <p>Track your products in real-time - from international shipment to US customer delivery.</p>
                 </div>
 
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
@@ -445,7 +440,7 @@
                     <div class="comparison-row">
                         <div class="comparison-cell">Local Response</div>
                         <div class="comparison-cell">
-                            <span class="status-negative">✗</span> Remote support from Korea
+                            <span class="status-negative">✗</span> Remote support only
                         </div>
                         <div class="comparison-cell highlight-cell">
                             <span class="status-positive">✓</span> US HQ manager on-site

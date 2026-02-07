@@ -134,7 +134,8 @@ if (contactForm) {
 
         try {
             // Call the API
-            const response = await fetch('/contact-form', {
+            const API_URL = 'https://nextgate-landing-production.up.railway.app';
+            const response = await fetch(`${API_URL}/contact-form`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

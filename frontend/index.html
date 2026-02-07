@@ -111,7 +111,8 @@
         gtag('config', 'G-XXXXXXXXXX');
 
         // 페이지뷰 Firebase에 저장
-        fetch('/api/track-visit', {
+        const API_URL = 'https://nextgate-landing-production.up.railway.app';
+        fetch(`${API_URL}/api/track-visit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

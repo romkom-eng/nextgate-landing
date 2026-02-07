@@ -144,7 +144,9 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post('/contact-form', async (req, res) => {
-    console.log('Contact form submission:', req.body);
+    console.log('🚀 Contact form request received at:', new Date().toISOString());
+    console.log('   Data:', req.body);
+
     const { companyName, contactName, email, phone, productCategory, message } = req.body;
 
     const mailOptions = {
@@ -164,16 +166,23 @@ app.post('/contact-form', async (req, res) => {
 
     try {
         if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-            await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully');
+            console.log('   📧 Attempting to send email via NodeMailer...');
+            // Set a timeout for email sending to prevent infinite hang
+            const sendPromise = transporter.sendMail(mailOptions);
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Email send timeout (30s)')), 30000)
+            );
+
+            await Promise.race([sendPromise, timeoutPromise]);
+            console.log('   ✅ Email sent successfully');
         } else {
-            console.log('Email credentials not configured. Skipping email send.');
+            console.log('   ⚠️ Email credentials not configured. Skipping email send.');
         }
 
         res.json({ success: true, message: 'Inquiry received successfully' });
     } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).json({ success: false, message: 'Failed to send email' });
+        console.error('   ❌ Error processing request:', error.message);
+        res.status(500).json({ success: false, message: 'Failed to process request', error: error.message });
     }
 });
 

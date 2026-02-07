@@ -5,8 +5,14 @@
 
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const db = require('../database');
+
+let stripe;
+if (process.env.STRIPE_SECRET_KEY) {
+    stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+} else {
+    console.warn('⚠️ STRIPE_SECRET_KEY is missing. Stripe functionality will be disabled.');
+}
 
 // ========== Subscription Plans ==========
 
@@ -63,6 +69,9 @@ router.get('/plans', (req, res) => {
 // Create Stripe checkout session
 router.post('/create-checkout-session', async (req, res) => {
     try {
+        if (!stripe) {
+            return res.status(503).json({ error: 'Payment service unavailable (Stripe key missing)' });
+        }
         const { plan } = req.body;
         const user = req.session.user;
 

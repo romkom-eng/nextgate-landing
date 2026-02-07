@@ -73,6 +73,7 @@ app.use(session({
 
 // Serve static files
 app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend'))); // Fix for root path assets
 app.use('/dashboard', express.static(path.join(__dirname, '../dashboard')));
 
 // ========== Routes ==========
@@ -129,6 +130,52 @@ app.post('/api/auth/login', loginLimiter);
 
 // ========== Stripe Routes ==========
 app.use('/api/stripe', stripeRoutes);
+
+// ========== Contact Form Route ==========
+const nodemailer = require('nodemailer');
+
+// Configure email transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',  // or use 'smtp.gmail.com'
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+app.post('/contact-form', async (req, res) => {
+    console.log('Contact form submission:', req.body);
+    const { companyName, contactName, email, phone, productCategory, message } = req.body;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.ADMIN_EMAIL || 'admin@nextgate.com',
+        subject: `[NextGate 문의] ${companyName} - ${contactName}`,
+        html: `
+            <h2>새로운 입점 문의가 접수되었습니다.</h2>
+            <p><strong>회사명:</strong> ${companyName}</p>
+            <p><strong>담당자:</strong> ${contactName}</p>
+            <p><strong>이메일:</strong> ${email}</p>
+            <p><strong>연락처:</strong> ${phone}</p>
+            <p><strong>카테고리:</strong> ${productCategory}</p>
+            <p><strong>문의내용:</strong><br>${message}</p>
+        `
+    };
+
+    try {
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            await transporter.sendMail(mailOptions);
+            console.log('Email sent successfully');
+        } else {
+            console.log('Email credentials not configured. Skipping email send.');
+        }
+
+        res.json({ success: true, message: 'Inquiry received successfully' });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ success: false, message: 'Failed to send email' });
+    }
+});
 
 // ========== Dashboard API Routes (Protected) ==========
 

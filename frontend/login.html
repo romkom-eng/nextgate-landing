@@ -166,10 +166,10 @@
     </div>
 
     <script>
-        // Auto-detect environment: use localhost:3000 for local development, /api for production
+        // Auto-detect environment: use localhost:3000 for local development, production URL for deployed
         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000/api'
-            : '/api';
+            : 'https://amazonreach-production.up.railway.app/api';
         const loginForm = document.getElementById('loginForm');
         const mfaForm = document.getElementById('mfaForm');
         const loginTitle = document.querySelector('.logo p');

@@ -1,9 +1,3 @@
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://nextgate-landing-uzcn.vercel.app/sitemap.xml
-
-# Disallow private pages
-Disallow: /api/
-Disallow: /backend/
+Sitemap: https://nextgate.com/sitemap.xml

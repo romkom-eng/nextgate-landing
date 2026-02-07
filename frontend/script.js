@@ -332,6 +332,37 @@ formInputs.forEach(input => {
     });
 });
 
+// ========== ESG Tab Functionality ==========
+const esgTabs = document.querySelectorAll('.esg-tab');
+const esgContents = document.querySelectorAll('.esg-content');
+
+if (esgTabs.length > 0) {
+    esgTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and contents
+            esgTabs.forEach(t => t.classList.remove('active'));
+            esgContents.forEach(c => {
+                c.style.display = 'none';
+                c.classList.remove('active');
+            });
+
+            // Add active class to clicked tab
+            tab.classList.add('active');
+
+            // Show corresponding content
+            const tabId = tab.getAttribute('data-tab');
+            const targetContent = document.getElementById(`${tabId}-content`);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+                // Small delay to allow display:block to apply before opacity transition
+                setTimeout(() => {
+                    targetContent.classList.add('active');
+                }, 10);
+            }
+        });
+    });
+}
+
 // ========== PWA Support (Optional) ==========
 if ('serviceWorker' in navigator) {
     // Uncomment to enable service worker

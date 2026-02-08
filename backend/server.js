@@ -134,6 +134,8 @@ app.use('/api/stripe', stripeRoutes);
 // ========== Contact Form Route ==========
 const nodemailer = require('nodemailer');
 
+const dns = require('dns');
+
 // Configure email transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -146,9 +148,12 @@ const transporter = nodemailer.createTransport({
     tls: {
         rejectUnauthorized: false
     },
-    family: 4, // Force IPv4 to avoid ENETUNREACH issues
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
+    // Custom DNS lookup to strictly force IPv4
+    lookup: (hostname, options, callback) => {
+        dns.lookup(hostname, { family: 4 }, callback);
+    },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
     socketTimeout: 30000
 });
 

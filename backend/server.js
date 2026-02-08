@@ -164,10 +164,13 @@ transporter.verify((error, success) => {
     }
 });
 
-app.post('/contact-form', async (req, res) => {
-    console.log('🚀 Contact form request received at:', new Date().toISOString());
-    console.log('   Data:', req.body);
+// Health check for deployment monitoring
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
+app.post('/contact-form', (req, res) => {
+    console.log('🚀 Contact form request received at:', new Date().toISOString());
     const { companyName, contactName, email, phone, productCategory, message } = req.body;
 
     const mailOptions = {
@@ -185,26 +188,26 @@ app.post('/contact-form', async (req, res) => {
         `
     };
 
-    try {
-        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-            console.log('   📧 Attempting to send email via NodeMailer...');
-            // Set a timeout for email sending to prevent infinite hang
-            const sendPromise = transporter.sendMail(mailOptions);
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Email send timeout (30s)')), 30000)
-            );
-
-            await Promise.race([sendPromise, timeoutPromise]);
-            console.log('   ✅ Email sent successfully');
-        } else {
-            console.log('   ⚠️ Email credentials not configured. Skipping email send.');
-        }
-
-        res.json({ success: true, message: 'Inquiry received successfully' });
-    } catch (error) {
-        console.error('   ❌ Error processing request:', error.message);
-        res.status(500).json({ success: false, message: 'Failed to process request', error: error.message });
+    // NON-BLOCKING: Start email send in background and respond immediately to user
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        console.log('   📧 Starting background email send...');
+        transporter.sendMail(mailOptions)
+            .then(() => console.log('   ✅ Background email sent successfully'))
+            .catch(err => {
+                console.error('   ❌ Background Email Error:', err.message);
+                if (err.message.includes('ENETUNREACH')) {
+                    console.error('      (Network unreachable - still having IPv6/Port issues on Railway)');
+                }
+            });
+    } else {
+        console.log('   ⚠️ Email credentials missing. Response only.');
     }
+
+    // Respond to frontend immediately to prevent "Sending..." hang
+    res.json({
+        success: true,
+        message: 'Inquiry received! We will contact you shortly.'
+    });
 });
 
 // ========== Dashboard API Routes (Protected) ==========

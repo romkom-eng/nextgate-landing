@@ -144,11 +144,12 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     },
     tls: {
-        rejectUnauthorized: false // Avoid issues with certificate verification in some environments
+        rejectUnauthorized: false
     },
-    connectionTimeout: 10000, // 10 seconds to connect
-    greetingTimeout: 10000,   // 10 seconds to greet
-    socketTimeout: 30000      // 30 seconds for data
+    family: 4, // Force IPv4 to avoid ENETUNREACH issues with IPv6 in cloud environments
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 30000
 });
 
 // Verify connection configuration

@@ -80,77 +80,66 @@ app.use('/api/stripe', stripeRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check and Contact Form
-const nodemailer = require('nodemailer');
-const dns = require('dns');
+const { Resend } = require('resend');
 
-// Configure email transporter
-// SECURITY: Using direct IPv4 and servername to strictly avoid ENETUNREACH IPv6 issues on Railway
-const transporter = nodemailer.createTransport({
-    host: '142.251.181.108', // smtp.gmail.com IPv4 address
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false,
-        servername: 'smtp.gmail.com' // Crucial when using IP address as host
-    },
-    connectionTimeout: 20000,
-    greetingTimeout: 20000,
-    socketTimeout: 30000
-});
-
-// Verify connection configuration
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('❌ SMTP Connection Error (Check IPv4/Port):', error.message);
-    } else {
-        console.log('✅ SMTP Server is ready via IPv4 (denisoppa00@gmail.com)');
-    }
-});
+// Initialize Resend (will check for API key in env)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Health check for deployment monitoring
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        emailService: resend ? 'Resend configured' : 'Resend missing'
+    });
 });
 
 app.post('/contact-form', (req, res) => {
     console.log('🚀 Contact form request received at:', new Date().toISOString());
     const { companyName, contactName, email, phone, productCategory, message } = req.body;
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.ADMIN_EMAIL || 'admin@nextgate.com',
-        subject: `[NextGate 문의] ${companyName} - ${contactName}`,
-        html: `
-            <h2>새로운 입점 문의가 접수되었습니다.</h2>
-            <p><strong>회사명:</strong> ${companyName}</p>
-            <p><strong>담당자:</strong> ${contactName}</p>
-            <p><strong>이메일:</strong> ${email}</p>
-            <p><strong>연락처:</strong> ${phone}</p>
-            <p><strong>카테고리:</strong> ${productCategory}</p>
-            <p><strong>문의내용:</strong><br>${message}</p>
-        `
-    };
+    const emailHTML = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #1a2332; border-bottom: 2px solid #ff6b35; padding-bottom: 10px;">새로운 입점 문의가 접수되었습니다.</h2>
+            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>회사명:</strong> ${companyName}</p>
+                <p><strong>담당자:</strong> ${contactName}</p>
+                <p><strong>이메일:</strong> ${email}</p>
+                <p><strong>연락처:</strong> ${phone}</p>
+                <p><strong>카테고리:</strong> ${productCategory}</p>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid #eee;">
+                <p><strong>문의내용:</strong></p>
+                <p style="white-space: pre-wrap; line-height: 1.6;">${message}</p>
+            </div>
+            <p style="font-size: 12px; color: #666; text-align: center; margin-top: 30px;">
+                This inquiry was sent from NextGate Landing Page.
+            </p>
+        </div>
+    `;
 
-    // NON-BLOCKING: Start email send in background and respond immediately to user
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        console.log('   📧 Starting background email send...');
-        transporter.sendMail(mailOptions)
-            .then(() => console.log('   ✅ Background email sent successfully'))
-            .catch(err => {
-                console.error('   ❌ Background Email Error:', err.message);
-                if (err.message.includes('ENETUNREACH')) {
-                    console.error('      (Network unreachable - still having IPv6/Port issues on Railway)');
-                }
-            });
+    // NON-BLOCKING: Send via Resend API in background
+    if (resend) {
+        console.log('   📧 Attempting to send email via Resend API...');
+        resend.emails.send({
+            from: 'NextGate CMS <onboarding@resend.dev>', // Default from Resend for unverified domains
+            to: process.env.ADMIN_EMAIL || 'denisoppa00@gmail.com',
+            subject: `[NextGate 문의] ${companyName} - ${contactName}`,
+            html: emailHTML,
+        }).then(response => {
+            if (response.error) {
+                console.error('   ❌ Resend API Error:', response.error.message);
+            } else {
+                console.log('   ✅ Email sent successfully via Resend. ID:', response.data.id);
+            }
+        }).catch(err => {
+            console.error('   ❌ Resend Background Error:', err.message);
+        });
     } else {
-        console.log('   ⚠️ Email credentials missing. Response only.');
+        console.log('   ⚠️ RESEND_API_KEY missing. Only logging the request.');
     }
 
-    // Respond to frontend immediately to prevent "Sending..." hang
+    // Respond to frontend immediately
     res.json({
         success: true,
         message: 'Inquiry received! We will contact you shortly.'

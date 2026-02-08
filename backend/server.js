@@ -137,8 +137,8 @@ const nodemailer = require('nodemailer');
 // Configure email transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // STARTTLS
+    port: 465,
+    secure: true, // Use SSL
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -146,9 +146,9 @@ const transporter = nodemailer.createTransport({
     tls: {
         rejectUnauthorized: false
     },
-    family: 4, // Force IPv4 to avoid ENETUNREACH issues with IPv6 in cloud environments
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
+    family: 4, // Force IPv4 to avoid ENETUNREACH issues
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
     socketTimeout: 30000
 });
 

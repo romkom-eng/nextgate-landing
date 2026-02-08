@@ -136,10 +136,27 @@ const nodemailer = require('nodemailer');
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
-    service: 'gmail',  // or use 'smtp.gmail.com'
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // STARTTLS
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false // Avoid issues with certificate verification in some environments
+    },
+    connectionTimeout: 10000, // 10 seconds to connect
+    greetingTimeout: 10000,   // 10 seconds to greet
+    socketTimeout: 30000      // 30 seconds for data
+});
+
+// Verify connection configuration
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('❌ SMTP Connection Error:', error);
+    } else {
+        console.log('✅ SMTP Server is ready (denisoppa00@gmail.com)');
     }
 });
 

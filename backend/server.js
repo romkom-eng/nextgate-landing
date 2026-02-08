@@ -137,8 +137,9 @@ const nodemailer = require('nodemailer');
 const dns = require('dns');
 
 // Configure email transporter
+// SECURITY: Using direct IPv4 and servername to strictly avoid ENETUNREACH IPv6 issues on Railway
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '142.251.181.108', // smtp.gmail.com IPv4 address
     port: 465,
     secure: true, // Use SSL
     auth: {
@@ -146,11 +147,8 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     },
     tls: {
-        rejectUnauthorized: false
-    },
-    // Custom DNS lookup to strictly force IPv4
-    lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
+        rejectUnauthorized: false,
+        servername: 'smtp.gmail.com' // Crucial when using IP address as host
     },
     connectionTimeout: 20000,
     greetingTimeout: 20000,
@@ -160,9 +158,9 @@ const transporter = nodemailer.createTransport({
 // Verify connection configuration
 transporter.verify((error, success) => {
     if (error) {
-        console.error('❌ SMTP Connection Error:', error);
+        console.error('❌ SMTP Connection Error (Check IPv4/Port):', error.message);
     } else {
-        console.log('✅ SMTP Server is ready (denisoppa00@gmail.com)');
+        console.log('✅ SMTP Server is ready via IPv4 (denisoppa00@gmail.com)');
     }
 });
 

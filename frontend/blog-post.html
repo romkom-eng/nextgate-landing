@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} - NextGate Blog</title>
+    <meta name="description" content="{{DESCRIPTION}}">
+    <meta name="keywords" content="{{KEYWORDS}}">
+    <link rel="canonical" href="https://nextgate.com/blog/{{SLUG}}" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{DESCRIPTION}}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nextgate.com/blog/{{SLUG}}">
+    <meta property="article:published_time" content="{{PUBLISHED_AT}}">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .blog-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .blog-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .blog-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #334155;
+        }
+
+        .blog-content h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #1a2332;
+        }
+
+        .blog-content p {
+            margin-bottom: 20px;
+        }
+
+        .blog-meta {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar (Simplified for Blog) -->
+    <nav class="navbar" style="background: #0f172a;">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo" style="text-decoration: none; color: white;">
+                    <h2>NextGate</h2>
+                </a>
+                <div class="nav-links">
+                    <a href="/" style="color: white;">Home</a>
+                    <a href="/blog" style="color: #ff6b35;">Blog</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="blog-header">
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 10px;">{{TITLE}}</h1>
+            <div class="blog-meta">Published on {{PUBLISHED_DATE}}</div>
+        </div>
+    </header>
+
+    <main class="blog-container">
+        <a href="/blog" class="back-link">← Back to Blog List</a>
+        <article class="blog-content">
+            {{CONTENT}}
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 NextGate. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -4,6 +4,7 @@
 // ============================================
 
 const express = require('express');
+const fs = require('fs');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
@@ -207,6 +208,68 @@ app.get('/api/dashboard/summary', isAuthenticated, hasActiveSubscription, (req, 
             totalOrders: mockOrders.length,
             activeShipments: mockShipments.filter(s => s.Status === 'In Transit').length
         }
+    });
+});
+
+// ========== Blog Routes (SSR for SEO) ==========
+const BLOG_DB_PATH = path.join(__dirname, 'data/blog-posts.json');
+
+// Helper to get blog posts
+function getBlogPosts() {
+    if (!fs.existsSync(BLOG_DB_PATH)) return [];
+    try {
+        return JSON.parse(fs.readFileSync(BLOG_DB_PATH, 'utf8'));
+    } catch (e) {
+        console.error('Error reading blog db:', e);
+        return [];
+    }
+}
+
+app.get('/blog', (req, res) => {
+    const posts = getBlogPosts();
+    const templatePath = path.join(__dirname, '../frontend/blog-list.html');
+
+    fs.readFile(templatePath, 'utf8', (err, template) => {
+        if (err) return res.status(500).send('Error loading blog template');
+
+        // Generate list items HTML
+        const listItems = posts.map(post => `
+            <article class="blog-card">
+                <div class="blog-card-body">
+                    <span class="blog-date">${new Date(post.publishedAt).toLocaleDateString()}</span>
+                    <h3><a href="/blog/${post.slug}" class="read-more">${post.title}</a></h3>
+                    <p>${post.metaDescription || post.content.substring(0, 150)}...</p>
+                    <a href="/blog/${post.slug}" class="read-more">Read Article →</a>
+                </div>
+            </article>
+        `).join('');
+
+        const html = template.replace('{{BLOG_LIST_ITEMS}}', listItems || '<p>No posts yet. Check back soon!</p>');
+        res.send(html);
+    });
+});
+
+app.get('/blog/:slug', (req, res) => {
+    const posts = getBlogPosts();
+    const post = posts.find(p => p.slug === req.params.slug);
+
+    if (!post) return res.status(404).send('Blog post not found');
+
+    const templatePath = path.join(__dirname, '../frontend/blog-post.html');
+
+    fs.readFile(templatePath, 'utf8', (err, template) => {
+        if (err) return res.status(500).send('Error loading post template');
+
+        let html = template
+            .replace(/{{TITLE}}/g, post.title)
+            .replace(/{{DESCRIPTION}}/g, post.metaDescription)
+            .replace(/{{KEYWORDS}}/g, post.keywords)
+            .replace(/{{SLUG}}/g, post.slug)
+            .replace(/{{PUBLISHED_AT}}/g, post.publishedAt)
+            .replace(/{{PUBLISHED_DATE}}/g, new Date(post.publishedAt).toLocaleDateString())
+            .replace('{{CONTENT}}', post.content);
+
+        res.send(html);
     });
 });
 

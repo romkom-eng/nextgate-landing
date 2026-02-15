@@ -25,7 +25,7 @@
 
     /* Typography */
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-korean: 'Noto Sans KR', sans-serif;
+    --font-korean: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -241,8 +241,9 @@ button {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('hero_background_image_1770166835934.png') center/cover no-repeat;
-    opacity: 0.4;
+    background:
+        linear-gradient(to bottom, rgba(15, 20, 25, 0.8), rgba(15, 20, 25, 0.6)),
+        url('hero_background_image_1770166835934.png') center/cover no-repeat;
     z-index: 0;
 }
 
@@ -431,6 +432,39 @@ button {
 /* ========== Section Common Styles ========== */
 section {
     padding: var(--spacing-3xl) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ========== Blog Preview Section ========== */
+.blog-preview-section {
+    background: var(--color-white);
+}
+
+.blog-preview-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.blog-preview-grid .blog-card {
+    width: 100%;
+    margin: 0;
+}
+
+.blog-cta {
+    margin-top: var(--spacing-md);
+}
+
+/* Glassmorphism Utility */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .section-header {

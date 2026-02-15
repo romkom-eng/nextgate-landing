@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGate Blog - Amazon Export Insights</title>
+    <meta name="description"
+        content="Latest insights on Amazon export, K-Brand success strategies, and global logistics trends.">
+    <link rel="canonical" href="https://nextgate.com/blog" />
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .blog-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 60px 0;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-card-body {
+            padding: 24px;
+        }
+
+        .blog-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            color: #1a2332;
+        }
+
+        .blog-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .read-more {
+            color: #ff6b35;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        .blog-date {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" style="background: #0f172a;">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo" style="text-decoration: none; color: white;">
+                    <h2>NextGate</h2>
+                </a>
+                <div class="nav-links">
+                    <a href="/" style="color: white;">Home</a>
+                    <a href="/blog" style="color: #ff6b35;">Blog</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="blog-header">
+        <div class="container">
+            <h1>NextGate Insights</h1>
+            <p>Strategies for Amazon Global Selling Success</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="blog-grid">
+            <!-- Blog posts will be injected here by the server -->
+            {{BLOG_LIST_ITEMS}}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 NextGate. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

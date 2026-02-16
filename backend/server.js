@@ -97,7 +97,7 @@ app.get('/health', (req, res) => {
 
 app.post('/contact-form', (req, res) => {
     console.log('🚀 Contact form request received at:', new Date().toISOString());
-    const { companyName, contactName, email, phone, productCategory, message } = req.body;
+    const { companyName, contactName, email, phone, productCategory, otherCategory, message } = req.body;
 
     const emailHTML = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
@@ -107,7 +107,7 @@ app.post('/contact-form', (req, res) => {
                 <p><strong>담당자:</strong> ${contactName}</p>
                 <p><strong>이메일:</strong> ${email}</p>
                 <p><strong>연락처:</strong> ${phone}</p>
-                <p><strong>카테고리:</strong> ${productCategory}</p>
+                <p><strong>카테고리:</strong> ${productCategory} ${otherCategory ? `(${otherCategory})` : ''}</p>
             </div>
             <div style="padding: 20px; border-top: 1px solid #eee;">
                 <p><strong>문의내용:</strong></p>

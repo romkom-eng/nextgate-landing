@@ -571,19 +571,56 @@
                 </div>
                 <div class="contact-form-wrapper">
                     <form class="contact-form" id="contactForm">
-                        <input type="text" placeholder="Company Name" required>
-                        <input type="email" placeholder="Email" required>
-                        <input type="tel" placeholder="Phone Number" required>
-                        <select required>
-                            <option value="">Product Category</option>
-                            <option value="beauty">K-Beauty</option>
-                            <option value="food">Food</option>
-                            <option value="fashion">Fashion</option>
-                            <option value="other">Other</option>
-                        </select>
-                        <textarea placeholder="Inquiry Details" rows="4"></textarea>
-                        <button type="submit" class="cta-button cta-button-primary">
-                            Submit Inquiry
+                        <div class="form-group">
+                            <label for="companyName">Company / Brand Name *</label>
+                            <input type="text" id="companyName" name="companyName" required
+                                placeholder="e.g. Beauty Korea">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactName">Contact Name *</label>
+                            <input type="text" id="contactName" name="contactName" required placeholder="John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required placeholder="example@company.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="+1-234-567-8900">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">Product Category *</label>
+                            <select id="productCategory" name="productCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="beauty">K-Beauty (Skincare/Cosmetics)</option>
+                                <option value="food">Food (Health/Snacks)</option>
+                                <option value="fashion">Fashion/Accessories</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="otherCategoryGroup" style="display: none;">
+                            <label for="otherCategory">Other Category Details *</label>
+                            <input type="text" id="otherCategory" name="otherCategory"
+                                placeholder="e.g. Home Appliances, Daily Goods">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Inquiry Details</label>
+                            <textarea id="message" name="message" rows="4"
+                                placeholder="Please describe your inquiry..."></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            <span>Request Eligibility Check</span>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </button>
                     </form>
                 </div>
@@ -670,54 +707,87 @@
             });
         });
 
-        // Contact form
-        // Contact form submission
-        document.getElementById('contactForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Contact Form Handling
+        const contactForm = document.getElementById('contactForm');
 
-            const form = e.target;
-            const submitButton = form.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
+        if (contactForm) {
+            // Show/hide other category field
+            const productCategorySelect = document.getElementById('productCategory');
+            const otherCategoryGroup = document.getElementById('otherCategoryGroup');
+            const otherCategoryInput = document.getElementById('otherCategory');
 
-            // Get form data
-            const formData = {
-                companyName: form.querySelector('input[type="text"]').value,
-                email: form.querySelector('input[type="email"]').value,
-                phone: form.querySelector('input[type="tel"]').value,
-                productCategory: form.querySelector('select').value,
-                inquiryDetails: form.querySelector('textarea').value
-            };
-
-            // Disable button and show loading state
-            submitButton.disabled = true;
-            submitButton.textContent = '전송 중...';
-
-            try {
-                const response = await fetch('/api/contact-form', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+            if (productCategorySelect && otherCategoryGroup) {
+                productCategorySelect.addEventListener('change', function () {
+                    if (this.value === 'other') {
+                        otherCategoryGroup.style.display = 'block';
+                        otherCategoryInput.required = true;
+                    } else {
+                        otherCategoryGroup.style.display = 'none';
+                        otherCategoryInput.required = false;
+                        otherCategoryInput.value = '';
+                    }
                 });
-
-                if (response.ok) {
-                    alert('Thank you! We will contact you within 24 hours.');
-                    form.reset();
-                } else {
-                    const error = await response.json();
-                    alert('Sorry, there was an error submitting your form. Please try again or email us directly at contact@nextgate.co');
-                    console.error('Form submission error:', error);
-                }
-            } catch (error) {
-                alert('Sorry, there was an error submitting your form. Please try again or email us directly at contact@nextgate.co');
-                console.error('Network error:', error);
-            } finally {
-                // Re-enable button
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
             }
-        });
+
+            contactForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Get form data
+                const formData = {
+                    companyName: document.getElementById('companyName').value,
+                    contactName: document.getElementById('contactName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    productCategory: document.getElementById('productCategory').value,
+                    otherCategory: document.getElementById('otherCategory').value || '',
+                    message: document.getElementById('message').value
+                };
+
+                // Show loading state
+                const submitButton = e.target.querySelector('.submit-button');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<span>Sending...</span>';
+                submitButton.disabled = true;
+
+                try {
+                    // Call the API (Railway Backend)
+                    const API_URL = 'https://nextgate-landing-production.up.railway.app';
+                    const response = await fetch(`${API_URL}/contact-form`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Show success message
+                        alert('Your inquiry has been successfully submitted! We will contact you within 24 hours.\n\nAn AI consulting report has been sent to your email.');
+
+                        // Reset form
+                        contactForm.reset();
+                        if (otherCategoryGroup) {
+                            otherCategoryGroup.style.display = 'none';
+                        }
+                        if (otherCategoryInput) {
+                            otherCategoryInput.required = false;
+                        }
+                    } else {
+                        // Show error message
+                        alert('Sorry, there was an error submitting your form.\n\n' + (data.error || 'Please try again or email us directly at contact@nextgate.co'));
+                    }
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    alert('Sorry, there was an error submitting your form.\n\nPlease try again or email us directly at contact@nextgate.co');
+                } finally {
+                    // Restore button
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                }
+            });
+        }
     </script>
 </body>
 
